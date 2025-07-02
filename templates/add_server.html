@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1 class="mb-4">Add S3 Server</h1>
+  <form method="post">
+    <div class="mb-3">
+      <label class="form-label">Server Name</label>
+      <input type="text" class="form-control" name="name" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">AWS Access Key ID</label>
+      <input type="text" class="form-control" name="aws_access_key_id" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">AWS Secret Access Key</label>
+      <input type="text" class="form-control" name="aws_secret_access_key" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">AWS Region</label>
+      <input type="text" class="form-control" name="aws_region" placeholder="us-east-1">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">S3 Endpoint URL</label>
+      <input type="text" class="form-control" name="s3_endpoint_url" placeholder="Leave blank for AWS">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Bucket Name</label>
+      <input type="text" class="form-control" name="bucket_name" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Server</button>
+  </form>
+{% endblock %}

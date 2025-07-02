@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1 class="mb-4">Configured S3 Servers</h1>
+  {% if servers %}
+    <ul class="list-group mb-4">
+      {% for s in servers %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span><b>{{ s[1] }}</b> (bucket: {{ s[6] }})</span>
+          <a href="{{ url_for('server_files', server_id=s[0]) }}" class="btn btn-primary btn-sm">View Files</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="alert alert-warning">No S3 servers configured.</div>
+  {% endif %}
+{% endblock %}

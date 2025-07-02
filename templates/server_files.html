@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1 class="mb-4">Files in {{ server[1] }} (bucket: {{ server[6] }})</h1>
+  <a href="/" class="btn btn-secondary mb-3">&larr; Back to Servers</a>
+  {% if files %}
+    <ul class="list-group">
+      {% for f in files %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>{{ f['Key'] }} <small class="text-muted">({{ f['Size'] }} bytes, {{ f['LastModified'] }})</small></span>
+          <div>
+            <form method="post" action="{{ url_for('delete_file_direct', server_id=server[0], s3_key=f['Key']) }}" style="display:inline;">
+              <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this file?')">Delete</button>
+            </form>
+            {% if not f['Public'] %}
+              <form method="post" action="{{ url_for('make_public', server_id=server[0], s3_key=f['Key']) }}" style="display:inline;">
+                <button type="submit" class="btn btn-warning btn-sm ms-2">Make Public</button>
+              </form>
+            {% else %}
+              <a href="{{ f['Url'] }}" class="btn btn-success btn-sm ms-2" target="_blank">Public Link</a>
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="alert alert-info">No files found in this bucket.</div>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1 class="mb-4">Upload File to S3</h1>
+  <form method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+      <label class="form-label">Select Server</label>
+      <select class="form-select" name="server_id" required>
+        {% for s in servers %}
+          <option value="{{ s[0] }}">{{ s[1] }} (bucket: {{ s[6] }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">File</label>
+      <input type="file" class="form-control" name="file" required>
+    </div>
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" name="make_public" id="make_public">
+      <label class="form-check-label" for="make_public">Make Public</label>
+    </div>
+    <button type="submit" class="btn btn-success">Upload</button>
+  </form>
+{% endblock %}
