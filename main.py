@@ -1,4 +1,3 @@
-
 import boto3
 import sys
 import sqlite3
@@ -81,6 +80,27 @@ class S3Uploader:
             print(f"❌ Unexpected error: {str(e)}")
         
         return None
+
+    def upload_from_url(self, url, s3_key=None, make_public=False):
+        import requests
+        from tempfile import NamedTemporaryFile
+        try:
+            print(f"Downloading file from URL: {url}")
+            response = requests.get(url, stream=True)
+            response.raise_for_status()
+            with NamedTemporaryFile(delete=False) as tmp_file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        tmp_file.write(chunk)
+                tmp_file_path = tmp_file.name
+            if s3_key is None:
+                s3_key = Path(url).name or Path(tmp_file_path).name
+            result = self.upload_file(tmp_file_path, s3_key, make_public)
+            os.remove(tmp_file_path)
+            return result
+        except Exception as e:
+            print(f"❌ Error uploading from URL: {e}")
+            return None
     
     def list_files(self, prefix="", max_keys=100):
         try:
@@ -113,12 +133,14 @@ def main():
         print("  python main.py add-server")
         print("  python main.py list-servers")
         print("  python main.py upload <file_path> [s3_key] [--public] [--server <server_id>]")
+        print("  python main.py upload-url <url> [s3_key] [--public] [--server <server_id>]")
         print("  python main.py list [prefix] [--server <server_id>]")
         print("  python main.py delete <s3_key> [--server <server_id>]")
         print("\nExamples:")
         print("  python main.py add-server")
         print("  python main.py list-servers")
         print("  python main.py upload logo.png --server 1")
+        print("  python main.py upload-url https://example.com/file.jpg --server 1")
         print("  python main.py list --server 1")
         print("  python main.py delete images/logo.png --server 1")
         return
@@ -213,6 +235,14 @@ def main():
             s3_key = sys.argv[3] if len(sys.argv) > 3 and not sys.argv[3].startswith('--') else None
             make_public = '--public' in sys.argv
             uploader.upload_file(file_path, s3_key, make_public)
+        elif command == "upload-url":
+            if len(sys.argv) < 3:
+                print("❌ Error: Please provide a URL to upload from.")
+                return
+            url = sys.argv[2]
+            s3_key = sys.argv[3] if len(sys.argv) > 3 and not sys.argv[3].startswith('--') else None
+            make_public = '--public' in sys.argv
+            uploader.upload_from_url(url, s3_key, make_public)
         elif command == "list":
             prefix = sys.argv[2] if len(sys.argv) > 2 and not sys.argv[2].startswith('--') else ""
             uploader.list_files(prefix)
@@ -224,7 +254,7 @@ def main():
             uploader.delete_file(s3_key)
         else:
             print(f"❌ Unknown command: {command}")
-            print("Available commands: add-server, list-servers, upload, list, delete")
+            print("Available commands: add-server, list-servers, upload, upload-url, list, delete")
     except Exception as e:
         print(f"❌ Error: {e}")
 
